@@ -2,7 +2,6 @@
 from sys import argv
 
 import pyspark
-from pyspark.sql.session import SparkSession
 
 
 if len(argv) < 3:
