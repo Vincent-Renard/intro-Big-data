@@ -1,6 +1,7 @@
 
 from sys import argv
 
+import operator
 import pyspark
 from pyspark.sql.session import SparkSession
 
@@ -22,7 +23,7 @@ has_at_least_one_follower = net.map(lambda arc: arc.split(" ")[0]).distinct().co
 
 follow_at_least_one = net.map(lambda arc: arc.split(" ")[1]).distinct().count()
 
-pairs = net.map(lambda arc: (arc.split(" ")[0],arc)).groupByKey().mapValues( lambda adj_list : len(adj_list) )
+pairs = net.map(lambda arc: (arc.split(" ")[0], 1)).reduceByKey(operator.add)
 rich, max_followers_per_user = pairs.max(key=lambda pair: pair[1])
 poor, min_followers_per_user = pairs.min(key=lambda pair: pair[1])
 
@@ -31,5 +32,4 @@ print("Nb total de relations friend/follower : {}".format(size))
 print("Nb utilisateurs qui ont au moins un follower : {}".format(has_at_least_one_follower))
 print("Nb utilisateurs qui suivent au moins qqn : {}".format(follow_at_least_one))
 print("Nb max de followers par utilisateur: {} exemple {}".format(max_followers_per_user,rich))
-print("Nb min de followers par utilisateur : {} exemple {}".format(
-    min_followers_per_user,poor))
+print("Nb min de followers par utilisateur : {} exemple {}".format(min_followers_per_user,poor))
