@@ -1,5 +1,19 @@
 import itertools
+import random
 from functools import cache
+
+def generateur(nb_transactions, nb_items, intervalle):
+    min_items, max_items = intervalle
+    return [
+        [
+            "p" + str(i)
+            for i in random.sample(
+                range(nb_items),
+                random.randint(min_items, max_items)
+            )
+        ]
+        for _ in range(nb_transactions)
+    ]
 
 def fig(transactions, minsup, verbose=False):
     T = [sorted(t) for t in transactions]
