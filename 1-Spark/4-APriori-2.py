@@ -3,6 +3,7 @@ from functools import cache
 
 def fig(transactions, minsup, verbose=False):
     T = [sorted(t) for t in transactions]
+    N = len(T)
 
     @cache
     def o(X):
@@ -23,7 +24,7 @@ def fig(transactions, minsup, verbose=False):
             item
             for item in items
             if all(
-                o(tuple(x for j, x in enumerate(item) if j != i)) >= minsup
+                o(tuple(x for j, x in enumerate(item) if j != i)) >= N * minsup
                 for i in range(len(item))
             )
         )
@@ -33,14 +34,14 @@ def fig(transactions, minsup, verbose=False):
         print("Items :", I)
 
     k = 1
-    F = [{(i,) for i in I if o((i,)) >= minsup}]
+    F = [{(i,) for i in I if o((i,)) >= N * minsup}]
     if verbose:
         print("F1 :", F[k - 1])
 
     while len(F[k - 1]) > 0:
         k += 1
         C = apriori_gen(F[k - 1 - 1], k)
-        F.append({c for c in C if o(c) >= minsup})
+        F.append({c for c in C if o(c) >= N * minsup})
         if verbose:
             print("F" + str(k) + " :", F[k - 1])
 
@@ -58,4 +59,4 @@ transactions = [
     {"Bread", "Milk", "Diapers", "Coke"},
 ]
 
-fig(transactions, 3, True)
+fig(transactions, 0.6, True)
