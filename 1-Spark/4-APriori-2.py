@@ -1,11 +1,12 @@
 import itertools
+from functools import cache
 
 def fig(transactions, minsup, verbose=False):
     T = [sorted(t) for t in transactions]
 
+    @cache
     def o(X):
-        return o.cache.setdefault(X, sum(1 for t in T if set(X) <= set(t)))
-    o.cache = {}
+        return sum(1 for t in T if set(X) <= set(t))
 
     def apriori_gen(I, k):
         # Generation
@@ -22,7 +23,7 @@ def fig(transactions, minsup, verbose=False):
             item
             for item in items
             if all(
-                o(x for j, x in enumerate(item) if j != i) >= minsup
+                o(tuple(x for j, x in enumerate(item) if j != i)) >= minsup
                 for i in range(len(item))
             )
         )
