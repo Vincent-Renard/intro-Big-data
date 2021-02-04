@@ -29,25 +29,27 @@ def fig(transactions, minsup, verbose=False):
             )
         )
 
-    I = {items for t in transactions for items in t}
-    if verbose:
-        print("Items :", I)
+    def print_itemsets(k, itemsets):
+        print(str(k) + "-itemsets")
+        for item in sorted(itemsets):
+            print(", ".join(item).ljust(50), o(item), "F" if o(item) >= N * minsup else "I")
+
+    I = {(item,) for t in transactions for item in t}
 
     k = 1
-    F = [{(i,) for i in I if o((i,)) >= N * minsup}]
     if verbose:
-        print("F1 :", F[k - 1])
+        print_itemsets(k, I)
+    F = [{i for i in I if o(i) >= N * minsup}]
 
     while len(F[k - 1]) > 0:
         k += 1
         C = apriori_gen(F[k - 1 - 1], k)
-        F.append({c for c in C if o(c) >= N * minsup})
         if verbose:
-            print("F" + str(k) + " :", F[k - 1])
+            print("=" * 54)
+            print_itemsets(k, C)
+        F.append({c for c in C if o(c) >= N * minsup})
 
     union = set().union(*F)
-    if verbose:
-        print("FIG :", union)
     return union
 
 
@@ -59,4 +61,12 @@ transactions = [
     {"Bread", "Milk", "Diapers", "Coke"},
 ]
 
+ta = [["a", "b", "d", "e"], ["b", "c", "d"], ["a", "b", "d", "e"], ["a", "c", "d","e"], ["b", "c", "d", "e"], ["b", "d", "e"], ["c", "d"], ["a", "b", "c"], ["a", "d", "e"],["b", "d"]]
+tb = [["b", "c", "d"], ["a", "b", "c", "d", "e"], ["a", "b", "c", "e"], ["a", "b","d", "e"], ["b", "c", "e"], ["a", "b", "d", "e"]]
+
+print("TRANSACTIONS")
 fig(transactions, 0.6, True)
+print("\nTA")
+fig(ta, 0.3, True)
+print("\nTB")
+fig(tb, 0.5, True)
