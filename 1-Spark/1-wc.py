@@ -12,10 +12,12 @@ def clean_word(word):
 
 sc = pyspark.SparkContext()
 sc.setLogLevel("ERROR")
+
 spark = SparkSession(sc)
 
+
 if len(argv) <2:
-    print("J'ai besoin d'un repertoire d'entrée \nUsage : pyspark moi.py dir")
+    print("J'ai besoin d'un repertoire d'entrée \nUsage : spark-submit moi.py dir")
     exit()
 
 
@@ -35,5 +37,5 @@ word_count = lower_words.countByValue()
 for w, c in sorted(word_count.items()):
     print(w,"\t",c)
     pass
-#df = spark.createDataFrame(lines, ["word", "count"])
+
 
