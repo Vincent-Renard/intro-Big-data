@@ -18,11 +18,13 @@ net = sc.textFile(fichier)
 
 size = net.count()
 
-has_at_least_one_follower = net.map(lambda arc: arc.split(" ")[0]).distinct().count()
+arcs = net.map(lambda arc: arc.split(" "))
 
-follow_at_least_one = net.map(lambda arc: arc.split(" ")[1]).distinct().count()
+has_at_least_one_follower = arcs.map(lambda arc: arc[0]).distinct().count()
 
-pairs = net.map(lambda arc: (arc.split(" ")[0], 1)).reduceByKey(operator.add)
+follow_at_least_one = arcs.map(lambda arc: arc[1]).distinct().count()
+
+pairs = arcs.map(lambda arc: (arc[0], 1)).reduceByKey(operator.add)
 rich, max_followers_per_user = pairs.max(key=lambda pair: pair[1])
 poor, min_followers_per_user = pairs.min(key=lambda pair: pair[1])
 
