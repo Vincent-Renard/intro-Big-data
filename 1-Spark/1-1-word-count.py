@@ -1,38 +1,26 @@
-
 from sys import argv
-from os import listdir
 from re import sub
 import pyspark
 from pyspark.sql.session import SparkSession
+
+if len(argv) < 2:
+    print("J'ai besoin d'un répertoire d'entrée")
+    print("Usage : spark-submit 1-1-word-count.py <dir>")
+    exit()
 
 def clean_word(word):
     return sub(r"[^a-z]", "", word)
 
 sc = pyspark.SparkContext()
 sc.setLogLevel("ERROR")
-
 spark = SparkSession(sc)
-
-
-if len(argv) <2:
-    print("J'ai besoin d'un repertoire d'entrée \nUsage : spark-submit moi.py dir")
-    exit()
-
 
 dirr = argv[1]
 
-
-pool = sc.wholeTextFiles(dirr)
-
-files = pool.map(lambda content : content[1] )
-
-words=files.flatMap(lambda lines: lines.lower().split())
-
+pool = sc.textFile(dirr)
+words = pool.flatMap(lambda line: line.lower().split())
 lower_words = words.map(clean_word)
-
 word_count = lower_words.countByValue()
 
 for w, c in sorted(word_count.items()):
-    print(w.ljust(15), c)
-
-
+    print(w + "\t" + str(c))
