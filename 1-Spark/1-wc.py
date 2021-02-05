@@ -26,11 +26,11 @@ pool = sc.wholeTextFiles(dirr)
 
 files = pool.map(lambda content : content[1] )
 
-words=files.flatMap(lambda lines: lines.lower().split())
+lower_words = files.flatMap(lambda lines: lines.lower().split())
 
-lower_words = words.map(clean_word)
+clean_words = lower_words.map(clean_word)
 
-word_count = lower_words.countByValue()
+word_count = clean_words.countByValue()
 
 for w, c in sorted(word_count.items()):
     print(w.ljust(15), c)
