@@ -1,48 +1,9 @@
 import itertools
-
-from functools import cache
-
-def fig(transactions, minsup, verbose=False):
-    T = [sorted(t) for t in transactions]
-    N = len(T)
-
-    @cache
-    def o(X):
-        return sum(1 for t in T if set(X) <= set(t))
-
-    def apriori_gen(I, k):
-        # Generation
-        items = (
-            tuple(sorted(set(A) | set(B)))
-            for A, B in itertools.combinations(I, 2)
-            if all(
-                A[i] == B[i]
-                for i in range(k - 2)
-            ) and A[k - 1 - 1] != B[k - 1 - 1]
-        )
-        # Pruning
-        return set(
-            item
-            for item in items
-            if all(
-                o(tuple(x for j, x in enumerate(item) if j != i)) >= N * minsup
-                for i in range(len(item))
-            )
-        )
-
-    def print_itemsets(k, itemsets):
-        print(str(k) + "-itemsets")
-        for item in sorted(itemsets):
-            print(", ".join(item).ljust(50), o(item), "F" if o(item) >= N * minsup else "I")
-
-
-from random import sample,randint
+from random import randint,sample
 import time
-import pyspark
-from pyspark.sql.session import SparkSession
-from pyspark.ml.fpm import FPGrowth
+
 import matplotlib.pyplot as plt
-from functools import cache
+from functools import lru_cache
 
 def generateur(nb_transactions, nb_items, intervalle):
     min_items, max_items = intervalle
@@ -58,10 +19,10 @@ def generateur(nb_transactions, nb_items, intervalle):
     ]
 
 def fig(transactions, minsup, verbose=False):
-    T = [sorted(transaction) for transaction in transactions]
+    T = [sorted(t) for t in transactions]
     N = len(T)
 
-    @cache
+    @lru_cache(maxsize=None)
     def o(X):
         return sum(1 for t in T if set(X) <= set(t))
 
@@ -120,24 +81,22 @@ transactions = [
 ta = [["a", "b", "d", "e"], ["b", "c", "d"], ["a", "b", "d", "e"], ["a", "c", "d","e"], ["b", "c", "d", "e"], ["b", "d", "e"], ["c", "d"], ["a", "b", "c"], ["a", "d", "e"],["b", "d"]]
 tb = [["b", "c", "d"], ["a", "b", "c", "d", "e"], ["a", "b", "c", "e"], ["a", "b","d", "e"], ["b", "c", "e"], ["a", "b", "d", "e"]]
 
-
-print("TRANSACTIONS")
-fig(transactions, 0.6, True)
-print("\nTA")
-fig(ta, 0.3, True)
-print("\nTB")
-fig(tb, 0.5, True)
-
 #print("TRANSACTIONS")
 #fig(transactions, 0.6, True)
 #print("\nTA")
-#fig(ta, 0.3, True)
+hello = time.time()
+fig(generateur(3000, 50, (1, 19)), 0.05, False)
+print(time.time() - hello)
 #print("\nTB")
-#fig(tb, 0.5, True)
+#print(fig(tb, 0.6, True))
 
 
 
 
+
+"""import pyspark
+from pyspark.sql.session import SparkSession
+from pyspark.ml.fpm import FPGrowth
 sc = pyspark.SparkContext()
 sc.setLogLevel("ERROR")
 spark = SparkSession(sc)
@@ -149,15 +108,16 @@ def spark_fig(transactions, minsup, verbose=False):
     FPGrowth(minSupport=minsup).fit(df)
 
 minsup = 0.05
-nb_tentatives = 1
+nb_tentatives = 10
 times_fig = []
 times_spark = []
 nb_transactions_list = [1000, 2000, 3000]
+spark_fig(generateur(1, 1, (1, 1)), 0.1) # Pour init
 for nb_transactions in nb_transactions_list:
     somme_fig = 0
     somme_spark = 0
     for i in range(nb_tentatives):
-        test = generateur(nb_transactions, 50, (5, 20))
+        test = generateur(nb_transactions, 50, (5, 10))
 
         begin_fig = time.time()
         fig(test, minsup)
@@ -170,8 +130,6 @@ for nb_transactions in nb_transactions_list:
     times_spark.append(somme_spark / nb_tentatives)
 
 plt.plot(nb_transactions_list, times_fig)
-plt.plot(nb_transactions_list, times_spark)
-plt.legend(["PYTHON", "SPARK"])
-plt.show()
-plt.show()
-
+#plt.plot(nb_transactions_list, times_spark)
+#plt.legend(["PYTHON", "SPARK"])
+plt.show()"""

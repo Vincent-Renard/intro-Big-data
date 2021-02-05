@@ -1,14 +1,12 @@
 
 from sys import argv
-from os import listdir ,sep
+from os import listdir
 from re import sub
 import pyspark
 from pyspark.sql.session import SparkSession
 
 def clean_word(word):
-
     return sub(r"[^a-z]", "", word)
-
 
 sc = pyspark.SparkContext()
 sc.setLogLevel("ERROR")
@@ -35,7 +33,6 @@ lower_words = words.map(clean_word)
 word_count = lower_words.countByValue()
 
 for w, c in sorted(word_count.items()):
-    print(w,"\t",c)
-    pass
+    print(w.ljust(15), c)
 
 
